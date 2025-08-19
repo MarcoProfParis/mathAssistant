@@ -88,16 +88,24 @@
         </div>
 
         <!-- Input -->
-        <form @submit.prevent="send" class="mt-4 flex gap-3">
-          <textarea x-model="draft" rows="2"
-                    placeholder="Pose une question de maths…"
-                    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-          <button type="submit"
-                  class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-                  :disabled="!draft.trim()">
-            Envoyer
-          </button>
-        </form>
+        <form @submit.prevent="send" class="flex gap-3">
+  <textarea
+    x-model="draft"
+    rows="2"
+    placeholder="Pose une question de maths…"
+    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+    @keydown.enter.prevent="if(!$event.shiftKey && draft.trim() !== '') send()"
+  ></textarea>
+  
+  <button
+    type="submit"
+    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+    :disabled="draft.trim() === ''"
+  >
+    Envoyer
+  </button>
+</form>
+
       </section>
     </main>
 
