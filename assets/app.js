@@ -86,12 +86,25 @@ els.form.addEventListener("submit", async (e) => {
   setBusy(true);
   try {
     const out = await callProxy({
-      message: content,
-      assistant_id: assistantId,
-      thread_id: getThreadId(),
-    });
-    if (out.thread_id) setThreadId(out.thread_id);
-    els.list.appendChild(li("assistant", out.output || "(no output)"));
+  message: content,
+  assistant_id: assistantId,
+  thread_id: getThreadId(),
+});
+if (out.thread_id) setThreadId(out.thread_id);
+
+// Append and typeset LaTeX if present
+const node = li("assistant", out.output || "(no output)");
+els.list.appendChild(node);
+
+// Trigger MathJax on this node only (fast & safe)
+if (window.MathJax && window.MathJax.typesetPromise) {
+  try {
+    await MathJax.typesetPromise([node]);
+  } catch (e) {
+    console.warn("MathJax typeset failed:", e);
+  }
+}
+
   } catch (err) {
     els.list.appendChild(li("assistant", `⚠️ ${err.message}`));
   } finally {
