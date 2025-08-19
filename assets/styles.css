@@ -6,7 +6,7 @@
 .status{font-size:12px;color:var(--muted)}
 .wrap{display:grid;grid-template-columns:280px 1fr;gap:16px;max-width:1100px;margin:18px auto;padding:0 16px}
 .panel{background:var(--card);border:1px solid #1f2937;border-radius:14px;padding:16px;height:fit-content}
-.panel h2{font-size:16px;margin:0 0 10px}
+.panel h2{font-size:16px;margin:0}
 .field{display:flex;flex-direction:column;gap:6px;margin:10px 0}
 .field input, .field select{background:#0d131b;border:1px solid #1f2937;color:var(--ink);padding:10px 12px;border-radius:10px}
 .field small{color:var(--muted)}
@@ -14,7 +14,7 @@
 .chat{display:flex;flex-direction:column;gap:10px;height:75vh}
 .messages{list-style:none;margin:0;padding:10px;overflow:auto;background:var(--card);border:1px solid #1f2937;border-radius:14px;flex:1}
 .msg{display:flex;margin:8px 0;gap:10px}
-.msg .bubble{max-width:75%;padding:10px 14px;border-radius:12px;border:1px solid #1f2937;line-height:1.4;white-space:pre-wrap}
+.msg .bubble{max-width:75%;padding:2px 14px;border-radius:12px;border:1px solid #1f2937;line-height:1;white-space:pre-wrap}
 .msg.user{justify-content:flex-end}
 .msg.user .bubble{background:#16324b}
 .msg.assistant .bubble{background:#101722}
@@ -24,5 +24,6 @@
 .composer button{border:0;border-radius:10px;padding:10px 14px;background:#1e90ff;color:white;cursor:pointer}
 .foot{max-width:1100px;margin:8px auto 30px;padding:0 16px;color:var(--muted)}
 @media (max-width:900px){.wrap{grid-template-columns:1fr}.panel{order:2}}
+p {font-size:11px;margin:0}
 
 
