@@ -36,8 +36,8 @@ function setThreadId(id) {
 }
 function resetThread() {
   localStorage.removeItem(STORE_KEY_THREAD);
-  els.status.textContent = "thread reset";
-  els.list.innerHTML = "";
+  els.status.textContent = "ready"; // ✅ plus de "Conversation réinitialisée..."
+  els.list.innerHTML = "";          // ✅ on vide juste la conversation
 }
 els.resetThread.addEventListener("click", resetThread);
 
@@ -86,24 +86,24 @@ els.form.addEventListener("submit", async (e) => {
   setBusy(true);
   try {
     const out = await callProxy({
-  message: content,
-  assistant_id: assistantId,
-  thread_id: getThreadId(),
-});
-if (out.thread_id) setThreadId(out.thread_id);
+      message: content,
+      assistant_id: assistantId,
+      thread_id: getThreadId(),
+    });
+    if (out.thread_id) setThreadId(out.thread_id);
 
-// Append and typeset LaTeX if present
-const node = li("assistant", out.output || "(no output)");
-els.list.appendChild(node);
+    // Append and typeset LaTeX if present
+    const node = li("assistant", out.output || "(no output)");
+    els.list.appendChild(node);
 
-// Trigger MathJax on this node only (fast & safe)
-if (window.MathJax && window.MathJax.typesetPromise) {
-  try {
-    await MathJax.typesetPromise([node]);
-  } catch (e) {
-    console.warn("MathJax typeset failed:", e);
-  }
-}
+    // Trigger MathJax on this node only (fast & safe)
+    if (window.MathJax && window.MathJax.typesetPromise) {
+      try {
+        await MathJax.typesetPromise([node]);
+      } catch (e) {
+        console.warn("MathJax typeset failed:", e);
+      }
+    }
 
   } catch (err) {
     els.list.appendChild(li("assistant", `⚠️ ${err.message}`));
