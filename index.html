@@ -1,217 +1,175 @@
-<!doctype html> <html lang="fr" class="h-full"> <head> <meta charset="utf-8" /> <title>Math Assistant • Tailwind + Alpine</title> <meta name="viewport" content="width=device-width,initial-scale=1" /> <meta name="description" content="Minimal chat UI for an OpenAI Assistant with Tailwind CSS + Alpine.js" />
-<!-- Tailwind CSS (CDN) -->
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    theme: {
-      extend: {
-        fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
-        colors: { ink: { 50:'#f9fafb', 900:'#0b1020' } }
+<!doctype html>
+<html lang="fr" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <title>Math Assistant • Tailwind + Alpine</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] }
+          }
+        }
       }
-    }
-  }
-</script>
-<!-- Inter font -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    </script>
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 
-<!-- MathJax (LaTeX inline + display) -->
-<script>
-  window.MathJax = {
-    tex: {
-      inlineMath: [['\\(', '\\)'], ['$', '$']],
-      displayMath: [['\\[', '\\]'], ['$$', '$$']],
-      processEscapes: true
-    },
-    options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
-  };
-</script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <!-- MathJax (LaTeX) -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)'], ['$', '$']],
+          displayMath: [['\\[', '\\]'], ['$$', '$$']],
+          processEscapes: true
+        },
+        options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+      };
+    </script>
+    <script id="MathJax-script" async 
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-<!-- Alpine.js -->
-<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-</head> <body class="h-full bg-ink-50 text-ink-900 font-sans" x-data="chatApp()"> <!-- Topbar --> <header class="sticky top-0 z-40 border-b bg-white/80 backdrop-blur"> <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-4"> <div class="flex items-center gap-2"> <button class="lg:hidden inline-flex items-center justify-center rounded-xl p-2 hover:bg-gray-100" @click="sidebarOpen = !sidebarOpen" aria-label="Ouvrir les réglages"> <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg> </button> <div class="flex items-center gap-2"> <svg class="h-6 w-6 text-indigo-600" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor" class="opacity-10"/><path d="M8 12a4 4 0 108 0 4 4 0 10-8 0z" fill="currentColor"/></svg> <span class="text-lg font-semibold">Math Assistant</span> </div> </div> <div class="text-xs font-medium px-2 py-1 rounded-md bg-emerald-50 text-emerald-700" x-text="status"></div> </div> </header>
-<!-- Layout -->
-<main class="mx-auto max-w-7xl px-4 py-5 lg:grid lg:grid-cols-12 lg:gap-6">
-  <!-- Sidebar -->
-  <aside class="lg:col-span-4 xl:col-span-3">
-    <div class="lg:sticky lg:top-20"
-         :class="{'hidden': !sidebarOpen, 'block': sidebarOpen, 'lg:block': true}">
-      <div class="rounded-2xl border bg-white shadow-sm">
-        <div class="p-5 border-b">
-          <h2 class="text-sm font-semibold tracking-wide uppercase text-gray-600">Réglages</h2>
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+
+  <body class="h-full bg-gray-50 text-gray-900 font-sans" x-data="chatApp()">
+    <!-- Header -->
+    <header class="sticky top-0 border-b bg-white shadow-sm z-10">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <svg class="h-6 w-6 text-indigo-600" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>
+          <span class="text-lg font-semibold">Math Assistant</span>
         </div>
+        <div class="text-xs font-medium bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md" x-text="status"></div>
+      </div>
+    </header>
 
-        <div class="p-5 space-y-5">
+    <!-- Layout -->
+    <main class="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-12 gap-6">
+      <!-- Sidebar -->
+      <aside class="lg:col-span-4 xl:col-span-3">
+        <div class="rounded-2xl border bg-white shadow-sm p-5 space-y-5">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-600">Réglages</h2>
+
           <label class="block space-y-2">
             <span class="text-sm font-medium">Assistant</span>
-            <select class="w-full rounded-xl border-gray-300 bg-white text-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    x-model="assistantId" @change="onAssistantChange">
+            <select class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    x-model="assistantId">
               <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
               <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS LaTeX</option>
             </select>
-            <small class="block text-xs text-gray-500">Choisis l’assistant avec qui discuter.</small>
           </label>
 
-          <button type="button"
-                  class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50"
-                  @click="resetThread">
-            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M20 8a8 8 0 00-14.32-4M4 16a8 8 0 0014.32 4"/></svg>
+          <button @click="resetThread"
+                  class="w-full rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
             Réinitialiser la conversation
           </button>
         </div>
-      </div>
-    </div>
-  </aside>
+      </aside>
 
-  <!-- Chat -->
-  <section class="mt-6 lg:mt-0 lg:col-span-8 xl:col-span-9 flex flex-col">
-    <div id="messages"
-         class="flex-1 overflow-y-auto rounded-2xl border bg-white shadow-sm p-4 md:p-6 space-y-4"
-         x-ref="messages">
-      <!-- Messages -->
-      <template x-for="m in messages" :key="m.id">
-        <div class="flex items-start gap-3"
-             :class="m.role === 'user' ? 'justify-end' : 'justify-start'">
-          <div class="max-w-[85%] rounded-2xl px-4 py-3 text-sm leading-6"
-               :class="m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'">
-            <div x-html="m.html"></div>
-            <div class="mt-1 text-[10px] opacity-70" x-text="formatTime(m.ts)"></div>
-          </div>
+      <!-- Chat -->
+      <section class="lg:col-span-8 xl:col-span-9 flex flex-col">
+        <div id="messages" x-ref="messages"
+             class="flex-1 overflow-y-auto rounded-2xl border bg-white shadow-sm p-4 space-y-4 h-[60vh]">
+          <template x-for="m in messages" :key="m.id">
+            <div class="flex" :class="m.role === 'user' ? 'justify-end' : 'justify-start'">
+              <div class="max-w-[80%] rounded-xl px-4 py-2 text-sm"
+                   :class="m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-900 rounded-bl-none'">
+                <div x-html="m.html"></div>
+              </div>
+            </div>
+          </template>
         </div>
-      </template>
-    </div>
 
-    <!-- Composer -->
-    <form class="mt-4 flex items-end gap-3" @submit.prevent="send">
-      <textarea x-model="draft"
-                @keydown.enter.prevent="enterToSend($event)"
-                rows="2"
-                placeholder="Pose une question de maths… (Shift+Entrée pour retour ligne)"
-                class="min-h-[44px] max-h-48 flex-1 rounded-2xl border border-gray-300 p-3 text-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-      <button type="submit"
-              class="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3 text-white text-sm font-semibold shadow-sm hover:bg-indigo-700 disabled:opacity-40"
-              :disabled="!draft.trim()">
-        <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-        Envoyer
-      </button>
-    </form>
+        <!-- Input -->
+        <form @submit.prevent="send" class="mt-4 flex gap-3">
+          <textarea x-model="draft" rows="2"
+                    placeholder="Pose une question de maths…"
+                    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+          <button type="submit"
+                  class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  :disabled="!draft.trim()">
+            Envoyer
+          </button>
+        </form>
+      </section>
+    </main>
 
-    <p class="mt-3 text-xs text-gray-500">Entraîne-toi sur le programme de mathématiques du BTS Métiers de la Chimie. Les expressions sont en LaTeX : \( \int_0^1 x^2\,dx \), \( \mathbb{R} \), etc.</p>
-  </section>
-</main>
+    <!-- Footer -->
+    <footer class="border-t">
+      <div class="max-w-7xl mx-auto px-4 py-6 text-xs text-gray-500">
+        © <span x-text="new Date().getFullYear()"></span> Math Assistant. Rendu LaTeX via MathJax.
+      </div>
+    </footer>
 
-<!-- Footer -->
-<footer class="border-t">
-  <div class="mx-auto max-w-7xl px-4 py-6 text-xs text-gray-500">
-    © <span x-text="new Date().getFullYear()"></span> Math Assistant. Rendu LaTeX via MathJax.
-  </div>
-</footer>
+    <!-- Alpine.js logic -->
+    <script>
+      function chatApp() {
+        return {
+          status: 'ready',
+          assistantId: 'asst_nJPlhP6A858ujOQmAB1a7IKZ',
+          messages: [],
+          draft: '',
 
-<!-- Alpine component -->
-<script>
-  function chatApp() {
-    return {
-      // UI state
-      sidebarOpen: false,
-      status: 'ready',
-      assistantId: 'asst_nJPlhP6A858ujOQmAB1a7IKZ',
+          resetThread() {
+            this.messages = [];
+            this.status = 'ready';
+          },
 
-      // Data
-      messages: [
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          html: `<p>Bonjour 👋 Je suis prêt. N’hésite pas à écrire des maths avec LaTeX : \\( f(x)=3x^2 \\), \\[ \\int_0^1 x^2\\,dx \\].</p>`,
-          ts: Date.now()
-        }
-      ],
-      draft: '',
+          async send() {
+            const text = this.draft.trim();
+            if (!text) return;
 
-      // Actions
-      onAssistantChange() {
-        this.status = 'assistant set';
-        setTimeout(() => (this.status = 'ready'), 700);
-      },
-      resetThread() {
-        this.messages = [{
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          html: `<p>Conversation réinitialisée. Pose ta première question. Par exemple : « Quelle est une primitive de \\( 3x^2 \\) sur \\( \\mathbb{R} \\) ? »</p>`,
-          ts: Date.now()
-        }];
-        this.$nextTick(this.typesetMath);
-      },
-      enterToSend(e) {
-        // Shift+Enter -> newline, Enter -> send
-        if (e.shiftKey) {
-          const el = e.target;
-          const start = el.selectionStart, end = el.selectionEnd;
-          this.draft = this.draft.slice(0, start) + "\n" + this.draft.slice(end);
-          this.$nextTick(() => { el.selectionStart = el.selectionEnd = start + 1; });
-          return;
-        }
-        this.send();
-      },
-      async send() {
-        const text = this.draft.trim();
-        if (!text) return;
+            // Ajouter le message utilisateur
+            this.messages.push({ id: crypto.randomUUID(), role: 'user', html: `<p>${this.escapeHtml(text)}</p>` });
+            this.draft = '';
+            this.scrollToEnd();
+            this.$nextTick(this.typesetMath);
 
-        // push user message
-        this.messages.push({
-          id: crypto.randomUUID(),
-          role: 'user',
-          html: `<p>${this.escapeHtml(text)}</p>`,
-          ts: Date.now()
-        });
-        this.draft = '';
-        this.scrollToEnd();
-        this.$nextTick(this.typesetMath);
+            // Appel API backend
+            this.status = 'thinking…';
+            try {
+              const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  assistant_id: this.assistantId,
+                  message: text
+                })
+              });
+              const data = await resp.json();
 
-        // Simulated assistant echo + tip (replace with your API call)
-        this.status = 'thinking…';
-        const reply = this.mockAnswer(text);
-        await new Promise(r => setTimeout(r, 300)); // tiny delay
-        this.messages.push({
-          id: crypto.randomUUID(),
-          role: 'assistant',
-          html: reply,
-          ts: Date.now()
-        });
-        this.scrollToEnd();
-        this.$nextTick(this.typesetMath);
-        this.status = 'ready';
-      },
+              this.messages.push({ id: crypto.randomUUID(), role: 'assistant', html: data.reply });
+              this.scrollToEnd();
+              this.$nextTick(this.typesetMath);
+            } catch (e) {
+              console.error(e);
+              this.messages.push({ id: crypto.randomUUID(), role: 'assistant', html: '<p>⚠️ Erreur de communication avec le serveur.</p>' });
+            }
+            this.status = 'ready';
+          },
 
-      // Utilities
-      scrollToEnd() {
-        this.$nextTick(() => {
-          const box = this.$refs.messages;
-          box.scrollTop = box.scrollHeight;
-        });
-      },
-      typesetMath() {
-        if (window.MathJax && window.MathJax.typesetPromise) {
-          window.MathJax.typesetPromise([this.$refs.messages]).catch(() => {});
-        }
-      },
-      escapeHtml(s) {
-        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      },
-      formatTime(ts) {
-        const d = new Date(ts);
-        return d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-      },
-
-      // Very small demo “answer”
-      mockAnswer(text) {
-        // If the user mentions 3x^2 primitive
-        if (/3x\^?2/.test(text)) {
-          return `<p>Une primitive sur \\( \\mathbb{R} \\) est \\( x^3 + C \\), car \\( \\frac{d}{dx}(x^3) = 3x^2 \\).</p>`;
-        }
-        // Otherwise just mirror and show how LaTeX renders
-        return `<p>Tu as dit : « ${this.escapeHtml(text)} ». N’oublie pas que tu peux écrire des maths : \\( e^{i\\pi}+1=0 \\), \\[ \\sum_{k=1}^n k = \\frac{n(n+1)}{2} \\].</p>`;
+          scrollToEnd() {
+            this.$nextTick(() => {
+              const box = this.$refs.messages;
+              box.scrollTop = box.scrollHeight;
+            });
+          },
+          typesetMath() {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+              window.MathJax.typesetPromise([this.$refs.messages]).catch(() => {});
+            }
+          },
+          escapeHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          }
+        };
       }
-    };
-  }
-</script>
-</body> </html>
+    </script>
+  </body>
+</html>
