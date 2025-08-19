@@ -26,4 +26,18 @@
 @media (max-width:900px){.wrap{grid-template-columns:1fr}.panel{order:2}}
 p {font-size:11px;margin:0}
 
+ul {
+  margin: 0;
+  padding-left: 18px; /* conserve un léger retrait pour les puces/numéros */
+  list-style-position: outside;
+}
+
+li {
+  margin: 0;
+  padding: 0;
+  line-height: 1.05;
+}
+
+
+
 
