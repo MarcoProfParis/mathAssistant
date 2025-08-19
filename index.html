@@ -1,26 +1,23 @@
 <!doctype html>
-<html lang="fr" class="h-full">
+<html lang="fr" x-data="chatApp()" xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Math Assistant • Tailwind + Alpine</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] }
-          }
-        }
-      }
-    </script>
-
-    <!-- Inter font -->
+    <title>Math Assistant • BTS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Assistant de maths BTS avec LaTeX et Tailwind" />
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 
-    <!-- MathJax (LaTeX) -->
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script src="https://unpkg.com/alpinejs" defer></script>
+
+    <!-- MathJax -->
     <script>
       window.MathJax = {
         tex: {
@@ -31,92 +28,84 @@
         options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
       };
     </script>
-    <script id="MathJax-script" async 
-      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- App logic -->
+    <script type="module" src="./assets/app.js"></script>
   </head>
-
-  <body class="h-full bg-gray-50 text-gray-900 font-sans" x-data="chatApp()">
-    <!-- Header -->
-    <header class="sticky top-0 border-b bg-white shadow-sm z-10">
-      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-        <div class="flex items-center gap-2">
-          <svg class="h-6 w-6 text-indigo-600" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>
-          <span class="text-lg font-semibold">Math Assistant</span>
-        </div>
-        <div class="text-xs font-medium bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md" x-text="status"></div>
+  <body class="font-inter bg-gray-50 min-h-screen flex flex-col">
+    
+    <!-- HEADER -->
+    <header class="flex items-center justify-between bg-white shadow px-6 py-3">
+      <div class="flex items-center gap-2">
+        <div class="w-4 h-4 rounded-full bg-indigo-600"></div>
+        <span class="font-semibold text-lg">Math Assistant</span>
       </div>
+      <div class="text-sm text-gray-500" x-text="status"></div>
     </header>
 
-    <!-- Layout -->
-    <main class="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-12 gap-6">
-      <!-- Sidebar -->
-      <aside class="lg:col-span-4 xl:col-span-3">
-        <div class="rounded-2xl border bg-white shadow-sm p-5 space-y-5">
-          <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-600">Réglages</h2>
+    <!-- MAIN -->
+    <main class="flex flex-1 p-4 gap-4">
+      
+      <!-- ASIDE (réglages) -->
+      <aside class="w-64 bg-white shadow rounded-xl p-4 space-y-4">
+        <h2 class="text-gray-700 font-semibold uppercase text-sm">Réglages</h2>
 
-          <label class="block space-y-2">
-            <span class="text-sm font-medium">Assistant</span>
-            <select class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    x-model="assistantId">
-              <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
-              <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS LaTeX</option>
-            </select>
-          </label>
+        <label class="block text-sm">
+          <span class="text-gray-600">Assistant</span>
+          <select x-model="assistantId" class="mt-1 block w-full rounded-md border-gray-300 p-2 text-sm">
+            <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
+            <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS LaTeX</option>
+          </select>
+        </label>
 
-          <button @click="resetThread"
-                  class="w-full rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
-            Réinitialiser la conversation
-          </button>
-        </div>
+        <button @click="resetThread"
+          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-lg">
+          Réinitialiser la conversation
+        </button>
       </aside>
 
-      <!-- Chat -->
-      <section class="lg:col-span-8 xl:col-span-9 flex flex-col">
-        <div id="messages" x-ref="messages"
-             class="flex-1 overflow-y-auto rounded-2xl border bg-white shadow-sm p-4 space-y-4 h-[60vh]">
-          <template x-for="m in messages" :key="m.id">
-            <div class="flex" :class="m.role === 'user' ? 'justify-end' : 'justify-start'">
-              <div class="max-w-[80%] rounded-xl px-4 py-2 text-sm"
-                   :class="m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-900 rounded-bl-none'">
-                <div x-html="m.html"></div>
+      <!-- CHAT -->
+      <section class="flex-1 flex flex-col bg-white shadow rounded-xl">
+        
+        <!-- Messages -->
+        <ul class="flex-1 overflow-y-auto p-4 space-y-3" x-ref="messages">
+          <template x-for="msg in messages" :key="msg.id">
+            <li :class="msg.role === 'user' ? 'text-right' : 'text-left'">
+              <div :class="msg.role === 'user'
+                          ? 'inline-block bg-indigo-600 text-white px-3 py-2 rounded-lg'
+                          : 'inline-block bg-gray-100 text-gray-800 px-3 py-2 rounded-lg' "
+                   x-html="msg.html">
               </div>
-            </div>
+            </li>
           </template>
-        </div>
+        </ul>
 
-        <!-- Input -->
-        <form @submit.prevent="send" class="flex gap-3">
-  <textarea
-    x-model="draft"
-    rows="2"
-    placeholder="Pose une question de maths…"
-    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
-    @keydown.enter.prevent="if(!$event.shiftKey && draft.trim() !== '') send()"
-  ></textarea>
-  
-  <button
-    type="submit"
-    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-    :disabled="draft.trim() === ''"
-  >
-    Envoyer
-  </button>
-</form>
+        <!-- Composer -->
+        <form @submit.prevent="send" class="border-t border-gray-200 flex gap-3 p-3">
+          <textarea
+            x-model="draft"
+            rows="2"
+            placeholder="Pose une question de maths…"
+            class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+            @keydown.enter.prevent="if(!$event.shiftKey && draft.trim() !== '') send()"
+          ></textarea>
 
+          <button
+            type="submit"
+            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+            :disabled="draft.trim() === ''"
+          >
+            Envoyer
+          </button>
+        </form>
       </section>
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t">
-      <div class="max-w-7xl mx-auto px-4 py-6 text-xs text-gray-500">
-        © <span x-text="new Date().getFullYear()"></span> Math Assistant. Rendu LaTeX via MathJax.
-      </div>
+    <!-- FOOTER -->
+    <footer class="text-center text-gray-400 text-xs py-4">
+      © 2025 Math Assistant. Rendu LaTeX via MathJax.
     </footer>
 
-    <!-- Script externe -->
-    <script type="module" src="./assets/app.js"></script>
   </body>
 </html>
