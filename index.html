@@ -16,6 +16,7 @@
         }
       }
     </script>
+
     <!-- Inter font -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 
@@ -107,69 +108,7 @@
       </div>
     </footer>
 
-    <!-- Alpine.js logic -->
-    <script>
-      function chatApp() {
-        return {
-          status: 'ready',
-          assistantId: 'asst_nJPlhP6A858ujOQmAB1a7IKZ',
-          messages: [],
-          draft: '',
-
-          resetThread() {
-            this.messages = [];
-            this.status = 'ready';
-          },
-
-          async send() {
-            const text = this.draft.trim();
-            if (!text) return;
-
-            // Ajouter le message utilisateur
-            this.messages.push({ id: crypto.randomUUID(), role: 'user', html: `<p>${this.escapeHtml(text)}</p>` });
-            this.draft = '';
-            this.scrollToEnd();
-            this.$nextTick(this.typesetMath);
-
-            // Appel API backend
-            this.status = 'thinking…';
-            try {
-              const resp = await fetch('/api/chat', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  assistant_id: this.assistantId,
-                  message: text
-                })
-              });
-              const data = await resp.json();
-
-              this.messages.push({ id: crypto.randomUUID(), role: 'assistant', html: data.reply });
-              this.scrollToEnd();
-              this.$nextTick(this.typesetMath);
-            } catch (e) {
-              console.error(e);
-              this.messages.push({ id: crypto.randomUUID(), role: 'assistant', html: '<p>⚠️ Erreur de communication avec le serveur.</p>' });
-            }
-            this.status = 'ready';
-          },
-
-          scrollToEnd() {
-            this.$nextTick(() => {
-              const box = this.$refs.messages;
-              box.scrollTop = box.scrollHeight;
-            });
-          },
-          typesetMath() {
-            if (window.MathJax && window.MathJax.typesetPromise) {
-              window.MathJax.typesetPromise([this.$refs.messages]).catch(() => {});
-            }
-          },
-          escapeHtml(s) {
-            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          }
-        };
-      }
-    </script>
+    <!-- Script externe -->
+    <script type="module" src="./assets/app.js"></script>
   </body>
 </html>
