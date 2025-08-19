@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="fr" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <title>Math Assistant • Tailwind + Alpine</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] }
+          }
+        }
+      }
+    </script>
+    <!-- Inter font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+
+    <!-- MathJax (LaTeX) -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)'], ['$', '$']],
+          displayMath: [['\\[', '\\]'], ['$$', '$$']],
+          processEscapes: true
+        },
+        options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+      };
+    </script>
+    <script id="MathJax-script" async 
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+
+  <body class="h-full bg-gray-50 text-gray-900 font-sans" x-data="chatApp()">
+    <!-- Header -->
+    <header class="sticky top-0 border-b bg-white shadow-sm z-10">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+          <svg class="h-6 w-6 text-indigo-600" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/></svg>
+          <span class="text-lg font-semibold">Math Assistant</span>
+        </div>
+        <div class="text-xs font-medium bg-emerald-100 text-emerald-700 px-2 py-1 rounded-md" x-text="status"></div>
+      </div>
+    </header>
+
+    <!-- Layout -->
+    <main class="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-12 gap-6">
+      <!-- Sidebar -->
+      <aside class="lg:col-span-4 xl:col-span-3">
+        <div class="rounded-2xl border bg-white shadow-sm p-5 space-y-5">
+          <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-600">Réglages</h2>
+
+          <label class="block space-y-2">
+            <span class="text-sm font-medium">Assistant</span>
+            <select class="w-full rounded-lg border-gray-300 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    x-model="assistantId">
+              <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
+              <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS LaTeX</option>
+            </select>
+          </label>
+
+          <button @click="resetThread"
+                  class="w-full rounded-lg border px-3 py-2 text-sm hover:bg-gray-50">
+            Réinitialiser la conversation
+          </button>
+        </div>
+      </aside>
+
+      <!-- Chat -->
+      <section class="lg:col-span-8 xl:col-span-9 flex flex-col">
+        <div id="messages" x-ref="messages"
+             class="flex-1 overflow-y-auto rounded-2xl border bg-white shadow-sm p-4 space-y-4 h-[60vh]">
+          <template x-for="m in messages" :key="m.id">
+            <div class="flex" :class="m.role === 'user' ? 'justify-end' : 'justify-start'">
+              <div class="max-w-[80%] rounded-xl px-4 py-2 text-sm"
+                   :class="m.role === 'user' ? 'bg-indigo-600 text-white rounded-br-none' : 'bg-gray-100 text-gray-900 rounded-bl-none'">
+                <div x-html="m.html"></div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Input -->
+        <form @submit.prevent="send" class="mt-4 flex gap-3">
+          <textarea x-model="draft" rows="2"
+                    placeholder="Pose une question de maths…"
+                    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+          <button type="submit"
+                  class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+                  :disabled="!draft.trim()">
+            Envoyer
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t">
+      <div class="max-w-7xl mx-auto px-4 py-6 text-xs text-gray-500">
+        © <span x-text="new Date().getFullYear()"></span> Math Assistant. Rendu LaTeX via MathJax.
+      </div>
+    </footer>
+
+    <!-- Alpine.js logic -->
+    <script>
+      function chatApp() {
+        return {
+          status: 'ready',
+          assistantId: 'asst_nJPlhP6A858ujOQmAB1a7IKZ',
+          messages: [],
+          draft: '',
+
+          resetThread() {
+            this.messages = [];
+            this.status = 'ready';
+          },
+
+          async send() {
+            const text = this.draft.trim();
+            if (!text) return;
+
+            // Ajouter le message utilisateur
+            this.messages.push({ id: crypto.randomUUID(), role: 'user', html: `<p>${this.escapeHtml(text)}</p>` });
+            this.draft = '';
+            this.scrollToEnd();
+            this.$nextTick(this.typesetMath);
+
+            // Appel API backend
+            this.status = 'thinking…';
+            try {
+              const resp = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  assistant_id: this.assistantId,
+                  message: text
+                })
+              });
+              const data = await resp.json();
+
+              this.messages.push({ id: crypto.randomUUID(), role: 'assistant', html: data.reply });
+              this.scrollToEnd();
+              this.$nextTick(this.typesetMath);
+            } catch (e) {
+              console.error(e);
+              this.messages.push({ id: crypto.randomUUID(), role: 'assistant', html: '<p>⚠️ Erreur de communication avec le serveur.</p>' });
+            }
+            this.status = 'ready';
+          },
+
+          scrollToEnd() {
+            this.$nextTick(() => {
+              const box = this.$refs.messages;
+              box.scrollTop = box.scrollHeight;
+            });
+          },
+          typesetMath() {
+            if (window.MathJax && window.MathJax.typesetPromise) {
+              window.MathJax.typesetPromise([this.$refs.messages]).catch(() => {});
+            }
+          },
+          escapeHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          }
+        };
+      }
+    </script>
+  </body>
+</html>
