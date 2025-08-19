@@ -82,23 +82,27 @@
         </ul>
 
         <!-- Composer -->
-        <form @submit.prevent="send" class="border-t border-gray-200 flex gap-3 p-3">
-          <textarea
-            x-model="draft"
-            rows="2"
-            placeholder="Pose une question de maths…"
-            class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
-            @keydown.enter.prevent="if(!$event.shiftKey && draft.trim() !== '') send()"
-          ></textarea>
+       <form id="form" class="border-t border-gray-200 flex gap-3 p-3" @submit.prevent="send">
+  <textarea
+    id="input"
+    x-model="draft"
+    rows="2"
+    placeholder="Pose une question de maths…"
+    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+    @keydown.enter.prevent="if(!$event.shiftKey && draft.trim() !== '') $refs.sendBtn.click()"
+  ></textarea>
 
-          <button
-            type="submit"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-            :disabled="draft.trim() === ''"
-          >
-            Envoyer
-          </button>
-        </form>
+  <button
+    id="send"
+    type="submit"
+    x-ref="sendBtn"
+    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+    :disabled="!draft.trim().length"
+  >
+    Envoyer
+  </button>
+</form>
+
       </section>
     </main>
 
