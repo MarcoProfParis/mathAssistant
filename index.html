@@ -1,23 +1,15 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Math Assistant • BTS</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Assistant de maths BTS avec LaTeX et Tailwind" />
-
-    <!-- Fonts -->
+    <title>Math Assistant • OpenAI</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Minimal chat UI for an OpenAI Assistant via secure proxy" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js (si tu veux rajouter du comportement réactif plus tard) -->
-    <script src="https://unpkg.com/alpinejs" defer></script>
-
-    <!-- MathJax -->
+    <link rel="stylesheet" href="./assets/styles.css" />
+      <!-- 🔢 MathJax configuration (LaTeX inline + display) -->
     <script>
       window.MathJax = {
         tex: {
@@ -25,80 +17,56 @@
           displayMath: [['\\[', '\\]'], ['$$', '$$']],
           processEscapes: true
         },
-        options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
+        options: {
+          skipHtmlTags: ['script','noscript','style','textarea','pre','code']
+        }
       };
     </script>
+    <!-- MathJax v3 (TeX -> CHTML) -->
     <script id="MathJax-script" async
       src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-
-    <!-- App logic -->
-    <script type="module" src="./assets/app.js"></script>
   </head>
-  <body class="font-inter bg-gray-50 min-h-screen flex flex-col">
-    
-    <!-- HEADER -->
-    <header class="flex items-center justify-between bg-white shadow px-6 py-3">
-      <div class="flex items-center gap-2">
-        <div class="w-4 h-4 rounded-full bg-indigo-600"></div>
-        <span class="font-semibold text-lg">Math Assistant</span>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>
+        <span>Math Assistant</span>
       </div>
-      <div id="status" class="text-sm text-gray-500">ready</div>
+      <div class="status" id="status">ready</div>
     </header>
 
-    <!-- MAIN -->
-    <main class="flex flex-1 p-4 gap-4">
-      
-      <!-- ASIDE (réglages) -->
-      <aside class="w-64 bg-white shadow rounded-xl p-4 space-y-4">
-        <h2 class="text-gray-700 font-semibold uppercase text-sm">Réglages</h2>
+    <main class="wrap">
+      <aside class="panel">
+        <h2>Settings</h2>
 
-        <label class="block text-sm">
-          <span class="text-gray-600">Assistant</span>
-          <select id="assistantSelect" class="mt-1 block w-full rounded-md border-gray-300 p-2 text-sm">
+        <label class="field">
+          <span>Assistant</span>
+          <select id="assistantSelect">
             <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
-            <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS LaTeX</option>
+            <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS Latex</option>
           </select>
+          <small>Choose which Assistant to chat with.</small>
         </label>
 
-        <button id="resetThread"
-          class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-lg">
-          Réinitialiser la conversation
-        </button>
+        <button id="resetThread" class="secondary">Reset conversation</button>
       </aside>
 
-      <!-- CHAT -->
-      <section class="flex-1 flex flex-col bg-white shadow rounded-xl">
-        
-        <!-- Messages -->
-        <ul id="messages" class="flex-1 overflow-y-auto p-4 space-y-3">
-          <!-- messages ajoutés dynamiquement -->
-        </ul>
+      <section class="chat">
+        <ul id="messages" class="messages" aria-live="polite"></ul>
 
-        <!-- Composer -->
-        <form id="form" class="border-t border-gray-200 flex gap-3 p-3">
-          <textarea
-            id="input"
-            rows="2"
-            placeholder="Pose une question de maths…"
-            class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
-          ></textarea>
-
-          <button
-            id="send"
-            type="submit"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-            disabled
-          >
-            Envoyer
-          </button>
+        <form id="form" class="composer">
+          <textarea id="input" rows="2" placeholder="Ask a math question… (Shift+Enter for newline)"></textarea>
+          <button id="send" type="submit">Send</button>
         </form>
       </section>
     </main>
 
-    <!-- FOOTER -->
-    <footer class="text-center text-gray-400 text-xs py-4">
-      © 2025 Math Assistant. Rendu LaTeX via MathJax.
+    <footer class="foot">
+      <small>
+        Entraîner vous sur le programme de mathématiques du BTS Métiers de la chimie
+      </small>
     </footer>
 
+    <script type="module" src="./assets/app.js"></script>
   </body>
 </html>
