@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Math Assistant • OpenAI</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="description" content="Minimal chat UI for an OpenAI Assistant via secure proxy" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" /></svg>
+        <span>Math Assistant</span>
+      </div>
+      <div class="status" id="status">ready</div>
+    </header>
+
+    <main class="wrap">
+      <aside class="panel">
+        <h2>Settings</h2>
+
+        <label class="field">
+          <span>Assistant</span>
+          <select id="assistantSelect">
+            <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
+            <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS 2</option>
+          </select>
+          <small>Choose which Assistant to chat with.</small>
+        </label>
+
+        <button id="resetThread" class="secondary">Reset conversation</button>
+      </aside>
+
+      <section class="chat">
+        <ul id="messages" class="messages" aria-live="polite"></ul>
+
+        <form id="form" class="composer">
+          <textarea id="input" rows="2" placeholder="Ask a math question… (Shift+Enter for newline)"></textarea>
+          <button id="send" type="submit">Send</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <small>
+        Built for GitHub Pages. API key is protected by a server-side proxy.
+      </small>
+    </footer>
+
+    <script type="module" src="./assets/app.js"></script>
+  </body>
+</html>
