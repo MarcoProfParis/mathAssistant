@@ -13,8 +13,21 @@
 .secondary{background:transparent;border:1px solid #263242;color:var(--ink);padding:8px 10px;border-radius:10px;cursor:pointer}
 .chat{display:flex;flex-direction:column;gap:10px;height:75vh}
 .messages{list-style:none;margin:0;padding:10px;overflow:auto;background:var(--card);border:1px solid #1f2937;border-radius:14px;flex:1}
-.msg{display:flex;margin:8px 0;gap:10px}
-.msg .bubble{max-width:75%;padding:2px 14px;border-radius:12px;border:1px solid #1f2937;line-height:1;white-space:pre-wrap}
+.msg {
+  display: flex;
+  margin: 3px 0;   /* réduit l’espace vertical entre messages */
+  gap: 6px;        /* réduit l’écart horizontal éventuel */
+}
+
+.msg .bubble {
+  max-width: 75%;
+  padding: 4px 10px; /* réduit le padding interne */
+  border-radius: 10px;
+  border: 1px solid #1f2937;
+  line-height: 1.2;  /* compact mais lisible */
+  white-space: pre-wrap;
+}
+
 .msg.user{justify-content:flex-end}
 .msg.user .bubble{background:#16324b}
 .msg.assistant .bubble{background:#101722}
