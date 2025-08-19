@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="fr" x-data="chatApp()" xmlns="http://www.w3.org/1999/xhtml">
+<html lang="fr">
   <head>
     <meta charset="utf-8" />
     <title>Math Assistant • BTS</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Assistant de maths BTS avec LaTeX et Tailwind" />
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,7 +14,7 @@
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Alpine.js -->
+    <!-- Alpine.js (si tu veux rajouter du comportement réactif plus tard) -->
     <script src="https://unpkg.com/alpinejs" defer></script>
 
     <!-- MathJax -->
@@ -28,7 +28,8 @@
         options: { skipHtmlTags: ['script','noscript','style','textarea','pre','code'] }
       };
     </script>
-    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script id="MathJax-script" async
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <!-- App logic -->
     <script type="module" src="./assets/app.js"></script>
@@ -41,7 +42,7 @@
         <div class="w-4 h-4 rounded-full bg-indigo-600"></div>
         <span class="font-semibold text-lg">Math Assistant</span>
       </div>
-      <div class="text-sm text-gray-500" x-text="status"></div>
+      <div id="status" class="text-sm text-gray-500">ready</div>
     </header>
 
     <!-- MAIN -->
@@ -53,13 +54,13 @@
 
         <label class="block text-sm">
           <span class="text-gray-600">Assistant</span>
-          <select x-model="assistantId" class="mt-1 block w-full rounded-md border-gray-300 p-2 text-sm">
+          <select id="assistantSelect" class="mt-1 block w-full rounded-md border-gray-300 p-2 text-sm">
             <option value="asst_nJPlhP6A858ujOQmAB1a7IKZ">Assistant Math BTS</option>
             <option value="asst_JIkIS0KLot6YU8V2uFP1VLLn">Assistant Math BTS LaTeX</option>
           </select>
         </label>
 
-        <button @click="resetThread"
+        <button id="resetThread"
           class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-lg">
           Réinitialiser la conversation
         </button>
@@ -69,38 +70,28 @@
       <section class="flex-1 flex flex-col bg-white shadow rounded-xl">
         
         <!-- Messages -->
-        <ul class="flex-1 overflow-y-auto p-4 space-y-3" x-ref="messages">
-          <template x-for="msg in messages" :key="msg.id">
-            <li :class="msg.role === 'user' ? 'text-right' : 'text-left'">
-              <div :class="msg.role === 'user'
-                          ? 'inline-block bg-indigo-600 text-white px-3 py-2 rounded-lg'
-                          : 'inline-block bg-gray-100 text-gray-800 px-3 py-2 rounded-lg' "
-                   x-html="msg.html">
-              </div>
-            </li>
-          </template>
+        <ul id="messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+          <!-- messages ajoutés dynamiquement -->
         </ul>
 
         <!-- Composer -->
-       <form id="form" class="border-t border-gray-200 flex gap-3 p-3">
-  <textarea
-    id="input"
-    rows="2"
-    placeholder="Pose une question de maths…"
-    class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
-  ></textarea>
+        <form id="form" class="border-t border-gray-200 flex gap-3 p-3">
+          <textarea
+            id="input"
+            rows="2"
+            placeholder="Pose une question de maths…"
+            class="flex-1 rounded-lg border-gray-300 text-sm p-3 focus:ring-indigo-500 focus:border-indigo-500"
+          ></textarea>
 
-  <button
-    id="send"
-    type="submit"
-    class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
-    disabled
-  >
-    Envoyer
-  </button>
-</form>
-
-
+          <button
+            id="send"
+            type="submit"
+            class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+            disabled
+          >
+            Envoyer
+          </button>
+        </form>
       </section>
     </main>
 
